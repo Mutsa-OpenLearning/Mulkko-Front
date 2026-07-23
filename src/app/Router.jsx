@@ -38,10 +38,10 @@ export default function AppRouter() {
 
         <Route path="/sessions/create" element={<CreateSessionPage />} />
 
-        {/* <Route
+        <Route
           path="/sessions/create/new"
           element={<CreateSessionFormPage />}
-        /> */}
+        />
         <Route
           path="/sessions/created"
           element={<TemporaryPage title="이전에 만든 세션" />}
