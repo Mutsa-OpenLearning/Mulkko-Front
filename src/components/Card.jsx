@@ -14,7 +14,7 @@ export const Card = ({ title = "세션이름", description = "설명글" }) => {
       "
     >
       <h3 className=" text-[18px] font-bold truncate">{title}</h3>
-      <p className=" text-[14px] truncate">{description}</p>
+      <p className=" text-[14px] text-[#616672] truncate">{description}</p>
     </div>
   );
 };

@@ -33,7 +33,7 @@ export default function CreateSessionPage() {
       <h1 className="text-[#0070F5] font-semibold text-[24px] pb-10">
         세션 만들기
       </h1>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center pb-20">
         <p>간편하게 대화를 연결해보세요</p>
 
         <button
