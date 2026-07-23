@@ -1,43 +1,44 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-import makeBlack from '../assets/icons/makeBlack.svg';
-import sessionIcon from '../assets/icons/session.svg';
-import Card from '../components/Card';
+import makeBlack from "../assets/icons/makeBlack.svg";
+import sessionIcon from "../assets/icons/session.svg";
+import SampleImage from "../assets/images/sample.png";
+import Card from "../components/Card";
 
 const joinedSessions = [
   {
     id: 1,
-    title: '영화의 이해',
-    description: '설명글',
+    title: "영화의 이해",
+    description: "설명글",
   },
   {
     id: 2,
-    title: '멋쟁이 사자처럼',
-    description: '설명글',
+    title: "멋쟁이 사자처럼",
+    description: "설명글",
   },
   {
     id: 3,
-    title: '스튜디오 2',
-    description: '설명글',
+    title: "스튜디오 2",
+    description: "설명글",
   },
 ];
 
 const likedQuestions = [
   {
     id: 1,
-    session: '영화의 이해',
-    text: '혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?',
+    session: "영화의 이해",
+    text: "혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?",
   },
   {
     id: 2,
-    session: '영화의 이해',
-    text: '혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?',
+    session: "영화의 이해",
+    text: "혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?",
   },
   {
     id: 3,
-    session: '영화의 이해',
-    text: '혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?',
+    session: "영화의 이해",
+    text: "혹시 이번에 나오는 호프 영화에 대해서 어떻게 생각하시나요?",
   },
 ];
 
@@ -76,19 +77,19 @@ function SessionJoinModal({
     const originalOverflow = document.body.style.overflow;
 
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape" && !isJoining) {
         onClose();
       }
     };
 
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       document.body.style.overflow = originalOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [session, onClose]);
+  }, [session, isJoining, onClose]);
 
   if (!session) {
     return null;
@@ -102,7 +103,10 @@ function SessionJoinModal({
         bg-black/30 px-5
       "
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (
+          event.target === event.currentTarget &&
+          !isJoining
+        ) {
           onClose();
         }
       }}
@@ -121,41 +125,38 @@ function SessionJoinModal({
         <button
           type="button"
           onClick={onClose}
+          disabled={isJoining}
           aria-label="모달 닫기"
           className="
             absolute right-4 top-4
             flex h-7 w-7 items-center justify-center
+            disabled:cursor-not-allowed disabled:opacity-40
           "
         >
           <CloseIcon />
         </button>
 
+        {/* 세션 대표 이미지 */}
         <div
           className="
-            mx-auto flex h-[180px] w-[180px]
-            items-center justify-center overflow-hidden
-            rounded-[16px] bg-[#EEF1F6]
+            mx-auto h-[180px] w-[180px]
+            overflow-hidden rounded-[16px]
+            bg-[#EEF1F6]
           "
         >
-          {session.imageUrl ? (
-            <img
-              src={session.imageUrl}
-              alt={`${session.title} 세션`}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-[12px] text-[#A2AAB7]">
-              세션 이미지
-            </span>
-          )}
+          <img
+            src={session.imageUrl || SampleImage}
+            alt={`${session.title} 세션 대표 이미지`}
+            className="block h-full w-full object-cover"
+          />
         </div>
 
         <div className="mt-6">
           <h2
             id="join-session-modal-title"
             className="
-              text-[16px] font-semibold leading-[120%]
-              text-[#1F2329]
+              text-[16px] font-semibold
+              leading-[120%] text-[#1F2329]
             "
           >
             {session.title}
@@ -169,7 +170,8 @@ function SessionJoinModal({
               text-[#7E8794]
             "
           >
-            {session.description || '등록된 세션 설명이 없습니다.'}
+            {session.description ||
+              "등록된 세션 설명이 없습니다."}
           </p>
         </div>
 
@@ -188,7 +190,7 @@ function SessionJoinModal({
             disabled:bg-[#BCC8D8]
           "
         >
-          {isJoining ? '참여 중...' : '참여하기'}
+          {isJoining ? "참여 중..." : "참여하기"}
         </button>
       </section>
     </div>
@@ -198,44 +200,99 @@ function SessionJoinModal({
 export default function JoinSessionPage() {
   const navigate = useNavigate();
   const inputRefs = useRef([]);
+  const [searchParams] = useSearchParams();
 
-  const [pinCode, setPinCode] = useState(Array(6).fill(''));
-  const [sessionToJoin, setSessionToJoin] = useState(null);
+  const [pinCode, setPinCode] = useState(
+    Array(6).fill(""),
+  );
 
-  const [isCheckingPin, setIsCheckingPin] = useState(false);
+  const [sessionToJoin, setSessionToJoin] =
+    useState(null);
+
+  const [isCheckingPin, setIsCheckingPin] =
+    useState(false);
+
   const [isJoining, setIsJoining] = useState(false);
 
-  const isPinComplete = pinCode.every((number) => number !== '');
+  const isPinComplete = pinCode.every(
+    (number) => number !== "",
+  );
+
+  /*
+   * 공유 URL에 ?pin=123456 형태로 들어오면
+   * PIN Code를 자동으로 채운다.
+   */
+  useEffect(() => {
+    const pinFromUrl = searchParams
+      .get("pin")
+      ?.replace(/\D/g, "")
+      .slice(0, 6);
+
+    if (!pinFromUrl) {
+      return;
+    }
+
+    const nextPinCode = Array(6).fill("");
+
+    pinFromUrl.split("").forEach((number, index) => {
+      nextPinCode[index] = number;
+    });
+
+    setPinCode(nextPinCode);
+  }, [searchParams]);
 
   const handlePinChange = (index, value) => {
-    const number = value.replace(/\D/g, '').slice(-1);
+    const numbers = value
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
+    if (!numbers) {
+      setPinCode((previousPinCode) => {
+        const nextPinCode = [...previousPinCode];
+        nextPinCode[index] = "";
+
+        return nextPinCode;
+      });
+
+      return;
+    }
 
     setPinCode((previousPinCode) => {
       const nextPinCode = [...previousPinCode];
-      nextPinCode[index] = number;
+
+      numbers.split("").forEach((number, offset) => {
+        const targetIndex = index + offset;
+
+        if (targetIndex < 6) {
+          nextPinCode[targetIndex] = number;
+        }
+      });
 
       return nextPinCode;
     });
 
-    if (number && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    const nextFocusIndex = Math.min(
+      index + numbers.length,
+      5,
+    );
+
+    inputRefs.current[nextFocusIndex]?.focus();
   };
 
   const handleKeyDown = (index, event) => {
     if (
-      event.key === 'Backspace' &&
+      event.key === "Backspace" &&
       !pinCode[index] &&
       index > 0
     ) {
       inputRefs.current[index - 1]?.focus();
     }
 
-    if (event.key === 'ArrowLeft' && index > 0) {
+    if (event.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
 
-    if (event.key === 'ArrowRight' && index < 5) {
+    if (event.key === "ArrowRight" && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -244,52 +301,61 @@ export default function JoinSessionPage() {
     event.preventDefault();
 
     const pastedPin = event.clipboardData
-      .getData('text')
-      .replace(/\D/g, '')
+      .getData("text")
+      .replace(/\D/g, "")
       .slice(0, 6);
 
     if (!pastedPin) {
       return;
     }
 
-    const nextPinCode = Array(6).fill('');
+    const nextPinCode = Array(6).fill("");
 
-    pastedPin.split('').forEach((number, index) => {
+    pastedPin.split("").forEach((number, index) => {
       nextPinCode[index] = number;
     });
 
     setPinCode(nextPinCode);
 
-    const nextFocusIndex = Math.min(pastedPin.length, 5);
+    const nextFocusIndex = Math.min(
+      pastedPin.length,
+      5,
+    );
+
     inputRefs.current[nextFocusIndex]?.focus();
   };
 
+  /*
+   * 첫 번째 물꼬 참여하기 버튼
+   * PIN Code로 세션 정보를 확인한 뒤 모달을 연다.
+   */
   const handleCheckPinCode = async () => {
     if (!isPinComplete || isCheckingPin) {
       return;
     }
 
-    const pin = pinCode.join('');
+    const pin = pinCode.join("");
 
     try {
       setIsCheckingPin(true);
 
       /*
-       * 백엔드 연결 시 아래 임시 데이터를 지우고 API를 호출한다.
+       * 백엔드 연결 시 아래 임시 데이터 대신
+       * PIN Code 조회 API를 호출한다.
        *
        * const response = await fetch(
        *   `${import.meta.env.VITE_API_BASE_URL}/sessions/pin/${pin}`,
        *   {
-       *     method: 'GET',
+       *     method: "GET",
        *     headers: {
        *       Authorization:
-       *         `Bearer ${localStorage.getItem('accessToken')}`,
+       *         `Bearer ${localStorage.getItem("accessToken")}`,
        *     },
        *   },
        * );
        *
        * if (!response.ok) {
-       *   throw new Error('세션을 찾을 수 없습니다.');
+       *   throw new Error("세션을 찾을 수 없습니다.");
        * }
        *
        * const result = await response.json();
@@ -297,26 +363,30 @@ export default function JoinSessionPage() {
        */
 
       const sessionData = {
-        sessionId: 'demo-session',
-        title: '멋쟁이 사자처럼 애거톤',
+        sessionId: "demo-session",
+        title: "멋쟁이 사자처럼 애거톤",
         description:
-          '물꼬대학교 멋쟁이 사자처럼 애거톤 파이팅~!',
-        imageUrl: '',
+          "물꼬대학교 멋쟁이 사자처럼 애거톤 파이팅~!",
+        imageUrl: SampleImage,
         pinCode: pin,
       };
 
       setSessionToJoin(sessionData);
     } catch (error) {
-      console.error('PIN Code 확인 실패:', error);
+      console.error("PIN Code 확인 실패:", error);
 
       window.alert(
-        '세션을 찾을 수 없습니다. PIN Code를 다시 확인해 주세요.',
+        "세션을 찾을 수 없습니다. PIN Code를 다시 확인해 주세요.",
       );
     } finally {
       setIsCheckingPin(false);
     }
   };
 
+  /*
+   * 모달 안 참여하기 버튼
+   * 참여 API를 호출한 뒤 질문 화면으로 이동한다.
+   */
   const handleConfirmJoin = async () => {
     if (!sessionToJoin || isJoining) {
       return;
@@ -326,34 +396,36 @@ export default function JoinSessionPage() {
       setIsJoining(true);
 
       /*
-       * 참여 처리 API가 따로 있다면 여기에서 호출한다.
+       * 백엔드 연결 시 참여 API를 호출한다.
        *
        * const response = await fetch(
        *   `${import.meta.env.VITE_API_BASE_URL}/sessions/${sessionToJoin.sessionId}/join`,
        *   {
-       *     method: 'POST',
+       *     method: "POST",
        *     headers: {
-       *       'Content-Type': 'application/json',
+       *       "Content-Type": "application/json",
        *       Authorization:
-       *         `Bearer ${localStorage.getItem('accessToken')}`,
+       *         `Bearer ${localStorage.getItem("accessToken")}`,
        *     },
        *     body: JSON.stringify({
-       *       pinCode: pinCode.join(''),
+       *       pinCode: pinCode.join(""),
        *     }),
        *   },
        * );
        *
        * if (!response.ok) {
-       *   throw new Error('세션 참여에 실패했습니다.');
+       *   throw new Error("세션 참여에 실패했습니다.");
        * }
        */
 
-      navigate(`/sessions/${sessionToJoin.sessionId}/audience`);
+      navigate(
+        `/sessions/${sessionToJoin.sessionId}/audience`,
+      );
     } catch (error) {
-      console.error('세션 참여 실패:', error);
+      console.error("세션 참여 실패:", error);
 
       window.alert(
-        '세션에 참여하지 못했습니다. 다시 시도해 주세요.',
+        "세션에 참여하지 못했습니다. 다시 시도해 주세요.",
       );
     } finally {
       setIsJoining(false);
@@ -375,7 +447,7 @@ export default function JoinSessionPage() {
           세션 참여하기
         </h1>
 
-        {/* PIN Code 입력 영역 */}
+        {/* PIN Code 입력 */}
         <section className="flex flex-col items-center">
           <p className="text-[16px] text-[#727986]">
             Pin Code 입력
@@ -397,13 +469,20 @@ export default function JoinSessionPage() {
                   type="text"
                   inputMode="numeric"
                   autoComplete={
-                    index === 0 ? 'one-time-code' : 'off'
+                    index === 0
+                      ? "one-time-code"
+                      : "off"
                   }
-                  aria-label={`PIN Code ${index + 1}번째 자리`}
+                  aria-label={`PIN Code ${
+                    index + 1
+                  }번째 자리`}
                   value={number}
-                  maxLength={1}
+                  maxLength={6}
                   onChange={(event) =>
-                    handlePinChange(index, event.target.value)
+                    handlePinChange(
+                      index,
+                      event.target.value,
+                    )
                   }
                   onKeyDown={(event) =>
                     handleKeyDown(index, event)
@@ -432,7 +511,9 @@ export default function JoinSessionPage() {
           <button
             type="button"
             onClick={handleCheckPinCode}
-            disabled={!isPinComplete || isCheckingPin}
+            disabled={
+              !isPinComplete || isCheckingPin
+            }
             className="
               mt-8 flex h-[52px] min-w-[172px]
               items-center justify-center gap-[10px]
@@ -451,15 +532,15 @@ export default function JoinSessionPage() {
               alt=""
               aria-hidden="true"
               className={[
-                'h-5 w-5',
-                !isPinComplete ? 'opacity-40' : '',
-              ].join(' ')}
+                "h-5 w-5",
+                !isPinComplete ? "opacity-40" : "",
+              ].join(" ")}
             />
 
             <span>
               {isCheckingPin
-                ? '세션 확인 중...'
-                : '물꼬 참여하기'}
+                ? "세션 확인 중..."
+                : "물꼬 참여하기"}
             </span>
           </button>
         </section>
@@ -486,7 +567,7 @@ export default function JoinSessionPage() {
           </div>
         </section>
 
-        {/* 좋아요를 누른 질문 */}
+        {/* 좋아요 누른 질문 */}
         <section className="mt-12">
           <h2
             className="
@@ -510,7 +591,9 @@ export default function JoinSessionPage() {
                   src={makeBlack}
                   alt=""
                   aria-hidden="true"
-                  className="mt-[2px] h-4 w-4 shrink-0"
+                  className="
+                    mt-[2px] h-4 w-4 shrink-0
+                  "
                 />
 
                 <span
@@ -531,7 +614,7 @@ export default function JoinSessionPage() {
         </section>
       </main>
 
-      {/* PIN 확인 후 표시되는 세션 참여 모달 */}
+      {/* PIN 확인 후 표시되는 모달 */}
       <SessionJoinModal
         session={sessionToJoin}
         isJoining={isJoining}

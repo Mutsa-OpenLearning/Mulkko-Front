@@ -1,13 +1,14 @@
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import MulKkoBlue from '../../assets/icons/MulKkoBlue.svg';
+import MulKkoBlue from "../../assets/icons/MulKkoBlue.svg";
+import SampleImage from '../../assets/images/sample.png';
 
 function PinCode({ value }) {
-  const digits = String(value ?? '')
-    .replace(/\D/g, '')
+  const digits = String(value ?? "")
+    .replace(/\D/g, "")
     .slice(0, 6)
-    .padEnd(6, ' ')
-    .split('');
+    .padEnd(6, " ")
+    .split("");
 
   return (
     <div className="mt-4 flex items-center gap-2">
@@ -40,20 +41,20 @@ export default function CreateSessionSuccessPage() {
   const { sessionId } = useParams();
 
   const {
-    pinCode = '',
-    sessionName = '',
-    description = '',
+    pinCode = "",
+    sessionName = "",
+    description = "",
   } = location.state ?? {};
 
   const handleShare = async () => {
     const joinUrl = `${window.location.origin}/sessions/join?pin=${pinCode}`;
 
     const shareText = [
-      `물꼬 세션에 참여해 주세요.`,
+      "물꼬 세션에 참여해 주세요.",
       `세션명: ${sessionName}`,
       `PIN Code: ${pinCode}`,
       joinUrl,
-    ].join('\n');
+    ].join("\n");
 
     try {
       if (navigator.share) {
@@ -67,10 +68,10 @@ export default function CreateSessionSuccessPage() {
       }
 
       await navigator.clipboard.writeText(shareText);
-      window.alert('세션 정보가 복사되었습니다.');
+      window.alert("세션 정보가 복사되었습니다.");
     } catch (error) {
-      if (error?.name !== 'AbortError') {
-        console.error('세션 공유 실패:', error);
+      if (error?.name !== "AbortError") {
+        console.error("세션 공유 실패:", error);
       }
     }
   };
@@ -78,11 +79,7 @@ export default function CreateSessionSuccessPage() {
   return (
     <section className="flex min-h-screen items-center justify-center bg-[#F8FAFD] px-10 py-12">
       <div className="flex w-full max-w-[520px] flex-col items-center">
-        <img
-          src={MulKkoBlue}
-          alt=""
-          className="h-[68px] w-auto"
-        />
+        <img src={MulKkoBlue} alt="" className="h-[68px] w-auto" />
 
         <h1 className="mt-7 text-center text-[28px] font-semibold leading-[120%] text-[#2F78F3]">
           물꼬를 틀 세션이 만들어졌어요!
@@ -92,12 +89,21 @@ export default function CreateSessionSuccessPage() {
           세션번호를 공유해 간편하게 대화를 연결해보세요
         </p>
 
-        <div className="mt-12 w-full max-w-[410px]">
+        {/* 세션 이미지 */}
+        <div className="mt-8 h-[180px] w-[180px] overflow-hidden rounded-[18px] bg-[#EEF1F6]">
+          <img
+            src={SampleImage}
+            alt="세션 대표 이미지"
+            className="block h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="mt-10 w-full max-w-[410px]">
           <div>
             <p className="text-[14px] text-[#8A929F]">세션명</p>
 
             <p className="mt-2 text-[16px] font-medium text-[#20242B]">
-              {sessionName || '세션명이 없습니다.'}
+              {sessionName || "세션명이 없습니다."}
             </p>
           </div>
 
@@ -105,7 +111,7 @@ export default function CreateSessionSuccessPage() {
             <p className="text-[14px] text-[#8A929F]">세션 설명</p>
 
             <p className="mt-2 whitespace-pre-wrap text-[16px] font-medium leading-[150%] text-[#20242B]">
-              {description || '등록된 세션 설명이 없습니다.'}
+              {description || "등록된 세션 설명이 없습니다."}
             </p>
           </div>
 
@@ -127,7 +133,8 @@ export default function CreateSessionSuccessPage() {
               text-[15px] font-medium text-white
               transition-colors
               hover:bg-[#276AE0]
-              disabled:cursor-not-allowed disabled:bg-[#B9C9DD]
+              disabled:cursor-not-allowed
+              disabled:bg-[#B9C9DD]
             "
           >
             공유하기
@@ -135,7 +142,7 @@ export default function CreateSessionSuccessPage() {
 
           <button
             type="button"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate("/home")}
             className="
               flex h-[48px] w-full items-center justify-center
               rounded-[14px] border border-[#9DCBFF]
