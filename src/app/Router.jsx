@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import AppLayout from '../components/layout/AppLayout';
 import LoginPage from '../pages/LoginPage';
+import HomePage from '../pages/HomePage';
 
 function TemporaryPage({ title }) {
   return (
@@ -22,7 +23,7 @@ export default function AppRouter() {
 
       {/* 사이드바가 있는 화면 */}
       <Route element={<AppLayout />}>
-        <Route path="/home" element={<TemporaryPage title="물꼬 홈" />} />
+        <Route path="/home" element={<HomePage />} />
 
         <Route
           path="/sessions/join"
