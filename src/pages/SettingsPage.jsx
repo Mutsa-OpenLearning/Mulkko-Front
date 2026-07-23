@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useUser } from "../components/hooks/useUser";
 
 function ChevronRightIcon() {
   return (
@@ -30,16 +32,18 @@ function Toggle({ checked, onChange, label }) {
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={[
-        'relative h-[28px] w-[50px] rounded-full transition-colors',
-        checked ? 'bg-[#3F94FB]' : 'bg-[#D8DEE8]',
-      ].join(' ')}
+        "relative h-[28px] w-[50px] rounded-full transition-colors",
+        checked ? "bg-[#3F94FB]" : "bg-[#D8DEE8]",
+      ].join(" ")}
     >
       <span
         className={[
-          'absolute top-[3px] h-[22px] w-[22px]',
-          'rounded-full bg-white shadow-sm transition-transform',
-          checked ? 'translate-x-[25px]' : 'translate-x-[3px]',
-        ].join(' ')}
+          "absolute top-[3px] h-[22px] w-[22px]",
+          "rounded-full bg-white shadow-sm transition-transform",
+          checked
+            ? "translate-x-[25px]"
+            : "translate-x-[3px]",
+        ].join(" ")}
       />
     </button>
   );
@@ -102,12 +106,12 @@ function ConfirmModal({
             type="button"
             onClick={onConfirm}
             className={[
-              'h-[44px] flex-1 rounded-[14px]',
-              'text-[14px] font-medium text-white',
+              "h-[44px] flex-1 rounded-[14px]",
+              "text-[14px] font-medium text-white",
               danger
-                ? 'bg-[#F04452] hover:bg-[#DF3442]'
-                : 'bg-[#3F94FB] hover:bg-[#2D84E9]',
-            ].join(' ')}
+                ? "bg-[#F04452] hover:bg-[#DF3442]"
+                : "bg-[#3F94FB] hover:bg-[#2D84E9]",
+            ].join(" ")}
           >
             {confirmText}
           </button>
@@ -120,48 +124,79 @@ function ConfirmModal({
 export default function SettingsPage() {
   const navigate = useNavigate();
 
-  const [nickname, setNickname] = useState('물꼬기 332');
-  const [savedNickname, setSavedNickname] = useState('물꼬기 332');
+  const {
+    nickname: savedNickname,
+    updateNickname,
+    resetNickname,
+  } = useUser();
 
-  const [sessionNotification, setSessionNotification] = useState(true);
-  const [questionNotification, setQuestionNotification] = useState(true);
+  const [nickname, setNickname] =
+    useState(savedNickname);
+
+  const [sessionNotification, setSessionNotification] =
+    useState(true);
+
+  const [questionNotification, setQuestionNotification] =
+    useState(true);
 
   const [modalType, setModalType] = useState(null);
 
+  useEffect(() => {
+    setNickname(savedNickname);
+  }, [savedNickname]);
+
+  const normalizedNickname = nickname
+    .trim()
+    .slice(0, 12);
+
   const isNicknameChanged =
-    nickname.trim() && nickname.trim() !== savedNickname;
+    normalizedNickname.length > 0 &&
+    normalizedNickname !== savedNickname;
 
   const handleSaveNickname = () => {
-    if (!nickname.trim()) {
+    const isUpdated = updateNickname(
+      normalizedNickname,
+    );
+
+    if (!isUpdated) {
+      window.alert("닉네임을 입력해 주세요.");
       return;
     }
 
-    setSavedNickname(nickname.trim());
-    setNickname(nickname.trim());
+    setNickname(normalizedNickname);
+    window.alert("닉네임이 변경되었습니다.");
+  };
 
-    window.alert('프로필이 수정되었습니다.');
+  const handleNicknameKeyDown = (event) => {
+    if (
+      event.key === "Enter" &&
+      isNicknameChanged
+    ) {
+      handleSaveNickname();
+    }
   };
 
   const handleLogout = () => {
-    // 실제 토큰 저장 키에 맞게 수정한다.
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
 
     setModalType(null);
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   };
 
   const handleWithdraw = () => {
     /*
-     * 백엔드 연동 시 회원 탈퇴 API를 호출한 뒤
-     * 토큰을 제거하고 로그인 화면으로 이동한다.
+     * 백엔드 연동 시 회원 탈퇴 API 호출 후
+     * 토큰과 사용자 데이터를 제거한다.
      */
 
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+
+    resetNickname();
 
     setModalType(null);
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -180,7 +215,8 @@ export default function SettingsPage() {
 
             <div
               className="
-                mt-4 rounded-[20px] border border-[#EDF0F4]
+                mt-4 rounded-[20px]
+                border border-[#EDF0F4]
                 bg-white px-7 py-7
               "
             >
@@ -193,7 +229,7 @@ export default function SettingsPage() {
                     text-[22px] font-semibold text-[#3F94FB]
                   "
                 >
-                  물
+                  {savedNickname.charAt(0) || "물"}
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -210,15 +246,19 @@ export default function SettingsPage() {
                       type="text"
                       value={nickname}
                       maxLength={12}
+                      placeholder="닉네임을 입력해주세요"
                       onChange={(event) =>
                         setNickname(event.target.value)
                       }
+                      onKeyDown={handleNicknameKeyDown}
                       className="
                         h-[48px] min-w-0 flex-1
-                        rounded-[14px] border border-transparent
+                        rounded-[14px]
+                        border border-transparent
                         bg-[#F1F4F8] px-4
                         text-[14px] text-[#20242B]
                         outline-none
+                        placeholder:text-[#A1A9B5]
                         focus:border-[#3F94FB]
                         focus:bg-white
                       "
@@ -229,7 +269,8 @@ export default function SettingsPage() {
                       disabled={!isNicknameChanged}
                       onClick={handleSaveNickname}
                       className="
-                        h-[48px] shrink-0 rounded-[14px]
+                        h-[48px] shrink-0
+                        rounded-[14px]
                         bg-[#3F94FB] px-6
                         text-[14px] font-medium text-white
                         hover:bg-[#2D84E9]
@@ -241,9 +282,15 @@ export default function SettingsPage() {
                     </button>
                   </div>
 
-                  <p className="mt-2 text-[12px] text-[#98A1AE]">
-                    최대 12자까지 입력할 수 있습니다.
-                  </p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-[12px] text-[#98A1AE]">
+                      최대 12자까지 입력할 수 있습니다.
+                    </p>
+
+                    <span className="text-[12px] text-[#A1A9B5]">
+                      {nickname.length}/12
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -257,8 +304,10 @@ export default function SettingsPage() {
 
             <div
               className="
-                mt-4 overflow-hidden rounded-[20px]
-                border border-[#EDF0F4] bg-white
+                mt-4 overflow-hidden
+                rounded-[20px]
+                border border-[#EDF0F4]
+                bg-white
               "
             >
               <div className="flex items-center justify-between px-7 py-6">
@@ -268,7 +317,8 @@ export default function SettingsPage() {
                   </p>
 
                   <p className="mt-1 text-[13px] text-[#8A929F]">
-                    참여 중인 세션의 시작과 종료 소식을 받습니다.
+                    참여 중인 세션의 시작과 종료
+                    소식을 받습니다.
                   </p>
                 </div>
 
@@ -288,7 +338,8 @@ export default function SettingsPage() {
                   </p>
 
                   <p className="mt-1 text-[13px] text-[#8A929F]">
-                    내 질문에 답변이나 반응이 등록되면 알려줍니다.
+                    내 질문에 답변이나 반응이 등록되면
+                    알려줍니다.
                   </p>
                 </div>
 
@@ -309,8 +360,10 @@ export default function SettingsPage() {
 
             <div
               className="
-                mt-4 overflow-hidden rounded-[20px]
-                border border-[#EDF0F4] bg-white
+                mt-4 overflow-hidden
+                rounded-[20px]
+                border border-[#EDF0F4]
+                bg-white
               "
             >
               <div className="flex items-center justify-between px-7 py-6">
@@ -339,11 +392,13 @@ export default function SettingsPage() {
 
               <button
                 type="button"
-                onClick={() => setModalType('logout')}
+                onClick={() =>
+                  setModalType("logout")
+                }
                 className="
-                  flex w-full items-center justify-between
-                  px-7 py-6 text-left
-                  hover:bg-[#FAFBFD]
+                  flex w-full items-center
+                  justify-between px-7 py-6
+                  text-left hover:bg-[#FAFBFD]
                 "
               >
                 <div>
@@ -365,9 +420,12 @@ export default function SettingsPage() {
 
           <button
             type="button"
-            onClick={() => setModalType('withdraw')}
+            onClick={() =>
+              setModalType("withdraw")
+            }
             className="
-              mt-8 text-[13px] text-[#A1A9B5]
+              mt-8 text-[13px]
+              text-[#A1A9B5]
               underline underline-offset-4
               hover:text-[#F04452]
             "
@@ -377,7 +435,7 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      {modalType === 'logout' && (
+      {modalType === "logout" && (
         <ConfirmModal
           title="로그아웃할까요?"
           description="언제든지 카카오 계정으로 다시 로그인할 수 있습니다."
@@ -387,11 +445,11 @@ export default function SettingsPage() {
         />
       )}
 
-      {modalType === 'withdraw' && (
+      {modalType === "withdraw" && (
         <ConfirmModal
           title="정말 탈퇴할까요?"
           description={
-            '탈퇴하면 참여하거나 만든 세션과 질문 기록을 다시 확인할 수 없습니다.\n삭제된 정보는 복구하기 어렵습니다.'
+            "탈퇴하면 참여하거나 만든 세션과 질문 기록을 다시 확인할 수 없습니다.\n삭제된 정보는 복구하기 어렵습니다."
           }
           confirmText="회원 탈퇴"
           danger
