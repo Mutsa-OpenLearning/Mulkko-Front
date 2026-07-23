@@ -10,6 +10,7 @@ import JoinSessionPage from "../pages/JoinSessionPage";
 import SessionJoinModal from "../components/common/SessionJoinModal";
 import SettingsPage from "../pages/SettingsPage";
 import SupportPage from "../pages/SupportPage";
+import AudienceSessionPage from "../pages/AudienceSessionPage";
 
 function TemporaryPage({ title }) {
   return (
@@ -67,7 +68,7 @@ export default function AppRouter() {
 
         <Route
           path="/sessions/:sessionId/audience"
-          element={<TemporaryPage title="참여자 실시간 질문" />}
+          element={<AudienceSessionPage />}
         />
         <Route
           path="/sessions/:sessionId/presenter"
