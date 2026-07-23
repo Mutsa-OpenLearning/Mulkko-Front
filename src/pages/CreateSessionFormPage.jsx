@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 function BackIcon() {
   return (
@@ -63,9 +63,9 @@ function ClearIcon() {
 export default function CreateSessionFormPage() {
   const navigate = useNavigate();
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [imagePreview, setImagePreview] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
@@ -93,10 +93,18 @@ export default function CreateSessionFormPage() {
       return;
     }
 
-    // 추후 세션 생성 API 응답에서 실제 세션 ID를 받아 사용한다.
-    const temporarySessionId = 'new-session';
+    const temporaryResponse = {
+      sessionId: "1",
+      pinCode: "135128",
+    };
 
-    navigate(`/sessions/${temporarySessionId}/options`);
+    navigate(`/sessions/create/${temporaryResponse.sessionId}/complete`, {
+      state: {
+        pinCode: temporaryResponse.pinCode,
+        sessionName: title,
+        description,
+      },
+    });
   };
 
   return (
@@ -165,10 +173,7 @@ export default function CreateSessionFormPage() {
 
         {/* 세션 제목 */}
         <div className="mt-9">
-          <label
-            htmlFor="session-title"
-            className="text-body-5 text-[#4D5562]"
-          >
+          <label htmlFor="session-title" className="text-body-5 text-[#4D5562]">
             세션 제목
           </label>
 
@@ -194,7 +199,7 @@ export default function CreateSessionFormPage() {
 
             <button
               type="button"
-              onClick={() => setTitle('')}
+              onClick={() => setTitle("")}
               aria-label="세션 제목 지우기"
               className="
                 absolute right-4 top-1/2
@@ -238,7 +243,7 @@ export default function CreateSessionFormPage() {
 
             <button
               type="button"
-              onClick={() => setDescription('')}
+              onClick={() => setDescription("")}
               aria-label="설명글 지우기"
               className="
                 absolute right-4 top-4
