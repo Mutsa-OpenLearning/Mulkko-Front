@@ -4,12 +4,13 @@ import chatIcon from '../../../assets/icons/chat1.svg';
 import chatActiveIcon from '../../../assets/icons/chat.svg';
 import homeIcon from '../../../assets/icons/home1.svg';
 import homeActiveIcon from '../../../assets/icons/home.svg';
-import logo from '../../../assets/icons/MulKko.svg';
+import logo from '../../../assets/icons/MulKkoBlue.svg';
 import makeIcon from '../../../assets/icons/make1.svg';
 import makeActiveIcon from '../../../assets/icons/make.svg';
 import myIcon from '../../../assets/icons/my1.svg';
 import myActiveIcon from '../../../assets/icons/my.svg';
 import profileIcon from '../../../assets/icons/Union.svg';
+import profile from '../../../assets/icons/profile.svg';
 
 const mainMenus = [
   {

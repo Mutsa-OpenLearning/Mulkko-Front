@@ -1,8 +1,10 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from "react-router-dom";
 
-import AppLayout from '../components/layout/AppLayout';
-import LoginPage from '../pages/LoginPage';
-import HomePage from '../pages/HomePage';
+import AppLayout from "../components/layout/AppLayout";
+import LoginPage from "../pages/LoginPage";
+import HomePage from "../pages/HomePage";
+import CreateSessionFormPage from "../pages/CreateSessionFormPage";
+import CreateSessionPage from "../pages/CreateSessionPage";
 
 function TemporaryPage({ title }) {
   return (
@@ -34,9 +36,11 @@ export default function AppRouter() {
           element={<TemporaryPage title="이전에 참여한 세션" />}
         />
 
+        <Route path="/sessions/create" element={<CreateSessionPage />} />
+
         <Route
-          path="/sessions/create"
-          element={<TemporaryPage title="세션 만들기" />}
+          path="/sessions/create/new"
+          element={<CreateSessionFormPage />}
         />
         <Route
           path="/sessions/created"
