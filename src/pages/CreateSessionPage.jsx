@@ -1,6 +1,7 @@
 import session from "../assets/icons/session.svg";
 import Card from "../components/Card";
 import makeBlack from "../assets/icons/makeBlack.svg";
+import { useNavigate } from "react-router-dom";
 
 const sessions = [
   { title: "영화의 이해", description: "설명글" },
@@ -25,6 +26,8 @@ const recentQuestions = [
 ];
 
 export default function CreateSessionPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="px-[29px] py-[29px]">
       <h1 className="text-[#0070F5] font-semibold text-[24px] pb-10">
@@ -33,7 +36,10 @@ export default function CreateSessionPage() {
       <div className="flex flex-col items-center">
         <p>간편하게 대화를 연결해보세요</p>
 
-        <button className="mt-4 h-[64px] px-[80px] rounded-[20px] flex items-center justify-center gap-[10px] bg-[#0070F5]">
+        <button
+          className="mt-4 h-[64px] px-[80px] rounded-[20px] flex items-center justify-center gap-[10px] bg-[#0070F5]"
+          onClick={() => navigate("/sessions/create/new")}
+        >
           <img src={session} alt="물꼬 로고" className="w-6 h-6" />
           <span className="text-white">물꼬 틀러 가기</span>
         </button>
