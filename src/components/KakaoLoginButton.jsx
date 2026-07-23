@@ -1,4 +1,4 @@
-import KakaoIcon from '../assets/icons/kakaotalk.png';
+import KakaoIcon from "../assets/icons/KakaoIcon.svg";
 
 export const KakaoLoginButton = () => {
   const REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URI;
