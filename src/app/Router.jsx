@@ -7,7 +7,9 @@ import CreateSessionFormPage from "../pages/CreateSessionFormPage";
 import CreateSessionPage from "../pages/CreateSessionPage";
 import CreateSessionSuccessPage from "../pages/CreateSessionSuccessPage";
 import JoinSessionPage from "../pages/JoinSessionPage";
-import SessionJoinModal from '../components/common/SessionJoinModal';
+import SessionJoinModal from "../components/common/SessionJoinModal";
+import SettingsPage from "../pages/SettingsPage";
+import SupportPage from "../pages/SupportPage";
 
 function TemporaryPage({ title }) {
   return (
@@ -77,8 +79,8 @@ export default function AppRouter() {
         />
 
         <Route path="/my" element={<TemporaryPage title="마이 물꼬" />} />
-        <Route path="/settings" element={<TemporaryPage title="설정" />} />
-        <Route path="/support" element={<TemporaryPage title="고객 문의" />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/support" element={<SupportPage />} />
       </Route>
 
       <Route
