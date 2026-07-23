@@ -5,6 +5,9 @@ import LoginPage from "../pages/LoginPage";
 import HomePage from "../pages/HomePage";
 import CreateSessionFormPage from "../pages/CreateSessionFormPage";
 import CreateSessionPage from "../pages/CreateSessionPage";
+import CreateSessionSuccessPage from "../pages/CreateSessionSuccessPage";
+import JoinSessionPage from "../pages/JoinSessionPage";
+import SessionJoinModal from '../components/common/SessionJoinModal';
 
 function TemporaryPage({ title }) {
   return (
@@ -27,16 +30,18 @@ export default function AppRouter() {
       <Route element={<AppLayout />}>
         <Route path="/home" element={<HomePage />} />
 
-      {/* 물꼬 틀러 가기 */}
+        <Route
+          path="/sessions/create/:sessionId/complete"
+          element={<CreateSessionSuccessPage />}
+        />
+        {/* 물꼬 틀러 가기 */}
         <Route
           path="/sessions/create/new"
           element={<CreateSessionFormPage />}
         />
 
-        <Route
-          path="/sessions/join"
-          element={<TemporaryPage title="세션 참여" />}
-        />
+        {/* 세션 참여 */}
+        <Route path="/sessions/join" element={<JoinSessionPage />} />
         <Route
           path="/sessions/joined"
           element={<TemporaryPage title="이전에 참여한 세션" />}
@@ -57,7 +62,7 @@ export default function AppRouter() {
           path="/sessions/:sessionId/options"
           element={<TemporaryPage title="세션 옵션 설정" />}
         />
-        
+
         <Route
           path="/sessions/:sessionId/audience"
           element={<TemporaryPage title="참여자 실시간 질문" />}
